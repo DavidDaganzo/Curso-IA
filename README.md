@@ -146,6 +146,17 @@ sin ella cae a las tipografías de respaldo del sistema.
 
 ---
 
+## Ver la web publicada
+
+Las dos cosas están online en GitHub Pages, sin necesidad de instalar nada:
+
+- **La web del temario** → <https://daviddaganzo.github.io/Curso-IA/>
+- **La presentación** → <https://daviddaganzo.github.io/Curso-IA/Presentacion.html>
+
+Se despliegan solas en cada `push` a `main` con el workflow `.github/workflows/pages.yml`.
+
+---
+
 ## Arrancar la web en local
 
 La web del temario está en `Proyecto del curso - Web finalizada/`. Es Vite + React 19 +

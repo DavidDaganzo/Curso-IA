@@ -40,8 +40,9 @@ export async function generarPDF(
 
   (doc as any).setAutoPageBreak?.(true, MARGEN);
 
-  const fuenteRegularB64 = await cargarFuenteComoBase64('/fonts/NotoSans-Regular.ttf');
-  const fuenteBoldB64 = await cargarFuenteComoBase64('/fonts/NotoSans-Bold.ttf');
+  const base = import.meta.env.BASE_URL;
+  const fuenteRegularB64 = await cargarFuenteComoBase64(`${base}fonts/NotoSans-Regular.ttf`);
+  const fuenteBoldB64 = await cargarFuenteComoBase64(`${base}fonts/NotoSans-Bold.ttf`);
 
   doc.addFileToVFS('NotoSans-Regular.ttf', fuenteRegularB64);
   doc.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal');
