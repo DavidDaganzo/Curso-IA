@@ -1,0 +1,30 @@
+
+Prompt Orquestador:
+
+El contenido del curso está en @TEMARIO.md: nueve módulos, cada uno con un
+encabezado de nivel 2, su subtítulo en una cita, una lista de puntos, una
+línea de comandos y una lista de ficheros.
+
+Quiero tres cosas:
+
+1. src/data/modulos.ts — el contenido de TEMARIO.md volcado a datos tipados.
+   Copia el texto TAL CUAL: no resumas, no reescribas y no te dejes puntos.
+   El id de cada módulo es la primera palabra del título en minúsculas y sin
+   acentos.
+2. MenuModulos — la lista lateral, con el módulo activo resaltado.
+   El id de cada módulo es la primera palabra del título en minúsculas y sin
+   acentos.
+2. MenuModulos — la lista lateral, con el módulo activo resaltado.
+3. PanelModulo — el detalle del módulo: título, subtítulo, puntos, comandos
+   y ficheros.
+
+
+Sigue las convenciones de AGENTS.md. Reparte el trabajo como te parezca.
+
+No me la des por terminada sin que alguien la haya abierto en el navegador
+y confirmado que se ve bien. 
+
+
+Prompt demo de las Skills:
+
+Añade un selector para seleccionar el idioma. Quiero que generes traducciones usando i18n de los textos, en español y en ingles.

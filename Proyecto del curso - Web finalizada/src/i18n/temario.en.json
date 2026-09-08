@@ -1,0 +1,172 @@
+{
+  "curso": {
+    "titulo": "AI Applied to Programming",
+    "subtitulo": "Code agents in the terminal with opencode · 84 minutes"
+  },
+  "modulos": {
+    "agentes": {
+      "titulo": "Agents",
+      "subtitulo": "An agent is model + prompt + permissions",
+      "puntos": [
+        "Build has unrestricted access: edits files and runs commands.",
+        "Plan is the same model with edit and bash denied. Not dumber: it has its hands tied.",
+        "Tab doesn't toggle two fixed modes: it cycles through all primary agents you have configured.",
+        "The mode field accepts primary, subagent or all. If omitted, it's all.",
+        "Subagents are invoked with @, and work in their own context.",
+        "permission.task decides which subagents each agent can call."
+      ],
+      "comandos": ["Tab", "@subagente", "/help"],
+      "ficheros": [
+        { "ruta": "opencode.json", "descripcion": "Define agents in the agent block" },
+        { "ruta": "~/.config/opencode/agents/<nombre>.md", "descripcion": "Define them as markdown, alternative" }
+      ],
+      "codigo": [
+        { "descripcion": "A primary and a subagent: what changes is mode and permission" }
+      ]
+    },
+    "equipo": {
+      "titulo": "Team",
+      "subtitulo": "Write how your team works and keep it in the repository",
+      "puntos": [
+        "orchestrator: coordinates and delegates. Has edit denied, so it can't do it itself.",
+        "architect: defines structure, components and types. Doesn't write code either.",
+        "developer: the only one with hands. And the most constrained: doesn't expand scope or add dependencies.",
+        "reviewer: validates and ends with a verdict, PASS or CHANGES REQUIRED. Who reviews, doesn't fix.",
+        "What makes it work isn't the prompt, it's permissions: an instruction can be ignored, a permission can't.",
+        "The cost is real: slower and more expensive. Worth it for large tasks, to separate design from execution, and to have an uncontaminated review."
+      ],
+      "comandos": ["permission.task", "edit: deny", "@architect", "@developer", "@reviewer"],
+      "ficheros": [
+        { "ruta": "opencode.json", "descripcion": "The four agents and their permissions" }
+      ],
+      "codigo": [
+        { "descripcion": "The four agents on the team, with their permissions" }
+      ]
+    },
+    "revision": {
+      "titulo": "Review",
+      "subtitulo": "Your work shifts from writing code to reviewing it",
+      "puntos": [
+        "Layer 1, the diff: did it touch files you didn't expect? Did it add dependencies? Are edge cases covered?",
+        "Layer 2, ask for accountability: have it summarize what changed and why. Don't reconstruct it by hand.",
+        "Layer 3, a reviewer without hands: with edit denied it reviews and can't fix, and arrives without the biases of the conversation where the code was written.",
+        "Without configuring anything: Tab to Plan and ask from there. Same effect.",
+        "/undo reverts the agent's last change. If it went down a path you don't like, undo and rephrase.",
+        "Permissions prevent it from doing it, the diff and the reviewer let you see it, /undo lets you remove it."
+      ],
+      "comandos": ["/undo", "/redo", "/share", "@reviewer"],
+      "ficheros": []
+    },
+    "reglas": {
+      "titulo": "Rules",
+      "subtitulo": "The agent doesn't fail because it's dumb, it fails because it's uninformed",
+      "puntos": [
+        "AGENTS.md is a markdown file in the repo root that's always loaded in context.",
+        "/init generates it by reading the project. What it produces is a good draft, not the truth: open it and fix it.",
+        "Put the project's quirks, the stuff a newcomer takes two weeks to discover. Don't put the novel: it takes up context in every request.",
+        "It's committed, so the whole team works with the same rules. And so do the agents.",
+        "Precedence: the project's going up the tree, then the global, and CLAUDE.md as last resort. First one found wins.",
+        "The project's for team rules; the global only for your personal preferences."
+      ],
+      "comandos": ["/init"],
+      "ficheros": [
+        { "ruta": "AGENTS.md", "descripcion": "Project rules, committed" },
+        { "ruta": "~/.config/opencode/AGENTS.md", "descripcion": "Your personal preferences" }
+      ],
+      "codigo": [
+        { "descripcion": "This very project's rules, exactly as they are committed" }
+      ]
+    },
+    "documentacion": {
+      "titulo": "Documentation",
+      "subtitulo": "The agent writes the documentation and the documentation improves the agent",
+      "puntos": [
+        "Documenting is the task with the best effort/result ratio: the agent can read the whole project.",
+        "Documentation lives in docs/, versioned with code, and reviewed in the same MR as the change.",
+        "With instructions you hook it as context, and it accepts paths, URLs and globs.",
+        "Keeping it up to date is something that must always happen, so its place is an AGENTS.md rule, not a command.",
+        "The cost of that rule: it loads on every request and applies to trivial changes too."
+      ],
+      "comandos": ["instructions: [\"docs/**/*.md\"]"],
+      "ficheros": [
+        { "ruta": "docs/ARQUITECTURA.md", "descripcion": "Structure and data flow" },
+        { "ruta": "docs/COMPONENTES.md", "descripcion": "One section per component" },
+        { "ruta": "opencode.json", "descripcion": "The instructions field" }
+      ],
+      "codigo": [
+        { "descripcion": "The instructions field wires docs/ in as context" }
+      ]
+    },
+    "comandos": {
+      "titulo": "Commands",
+      "subtitulo": "The body isn't fixed text: it's a template",
+      "puntos": [
+        "A markdown in .opencode/commands/. The filename is the command name.",
+        "The frontmatter has description, and optionally agent or model. The body is the prompt.",
+        "With shell syntax in backticks, opencode runs the command and pastes its output in the prompt.",
+        "With @file it's replaced by the file's content.",
+        "With $ARGUMENTS, $1 or $2 goes what you type after the command.",
+        "That's why /commit knows what you changed: you don't tell it, git diff brings it inside the prompt.",
+        "Committing is the perfect command example because it's your decision: you launch it when you want."
+      ],
+      "comandos": ["/commit", "$ARGUMENTS", "@fichero"],
+      "ficheros": [
+        { "ruta": ".opencode/commands/commit.md", "descripcion": "The /commit command" }
+      ],
+      "codigo": [
+        { "descripcion": "Frontmatter, shell output and $ARGUMENTS in a single command" }
+      ]
+    },
+    "skills": {
+      "titulo": "Skills",
+      "subtitulo": "Procedures the agent loads when it sees they apply",
+      "puntos": [
+        "Reusable instructions the agent discovers and loads on demand. Native support, no plugins.",
+        "At first it only sees the name and description; if it fits, it calls the skill tool and then loads the content.",
+        "The description is the only thing it sees before deciding: write it thinking about when to activate it, not what it contains.",
+        "The frontmatter name must match the folder name.",
+        "The rule: if it always applies, AGENTS.md. If you launch it, command. If it sometimes applies and the agent can recognize when, skill.",
+        "Good examples: adding a translated string, preparing a release, an accessibility checklist. Procedures with steps, that don't always apply."
+      ],
+      "comandos": ["herramienta skill"],
+      "ficheros": [
+        { "ruta": ".opencode/skills/<nombre>/SKILL.md", "descripcion": "Project skill" },
+        { "ruta": "~/.config/opencode/skills/<nombre>/SKILL.md", "descripcion": "Global skill" }
+      ],
+      "codigo": [
+        { "descripcion": "This project's translation skill" }
+      ]
+    },
+    "rag": {
+      "titulo": "RAG",
+      "subtitulo": "Retrieve only what's relevant and inject it in the prompt",
+      "puntos": [
+        "Instead of feeding the model everything, you retrieve what's needed and put it in the prompt.",
+        "The twist: code agents barely use vector RAG with embeddings.",
+        "They do agentic search with grep, glob and read: they search like a developer would.",
+        "It works better for code, because there's structure and exact names, not fuzzy similarity.",
+        "The three real forms of retrieval in opencode are instructions, skills and MCP."
+      ],
+      "comandos": ["grep", "glob", "read"],
+      "ficheros": []
+    },
+    "mcp": {
+      "titulo": "MCP",
+      "subtitulo": "A model has no hands. MCP gives it some",
+      "puntos": [
+        "A standard for giving the agent new tools without the vendor programming them.",
+        "Configured in three lines: remote by URL, or local by command.",
+        "With Playwright the agent drives a real browser: opens your app, interacts and tells you what it saw.",
+        "That turns \"trust me, it works\" into a real check: it's another review layer.",
+        "The most valuable from day one: browser, up-to-date docs and GitLab."
+      ],
+      "comandos": ["npx @playwright/mcp@latest"],
+      "ficheros": [
+        { "ruta": "opencode.json", "descripcion": "The mcp block" }
+      ],
+      "codigo": [
+        { "descripcion": "Playwright as a local MCP server, in three lines" }
+      ]
+    }
+  }
+}

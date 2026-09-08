@@ -1,0 +1,1455 @@
+<title>Agentes en la terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=JetBrains+Mono:wght@400..700&family=Newsreader:opsz,wght@6..72,300..600&display=swap">
+
+<style>
+  :root {
+    color-scheme: dark;
+
+    --ground:    #0d1719;
+    --ground-2:  #172b30;
+    --code-bg:   #091416;
+    --rule:      #24393c;
+    --rule-soft: #1a2c2f;
+
+    --ink:       #f0efe8;
+    --ink-dim:   #9fb0b0;
+    --ink-faint: #6d8a89;
+
+    --accent:      #f2b544;
+    --accent-soft: #f7d79a;
+    --accent-deep: #8a6a26;
+
+    --code-ink: #cfe3df;
+    --code-key: #8fc9c0;
+    --code-str: #f7d79a;
+
+    --font-display: "Bricolage Grotesque", "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --font-body: "Newsreader", "Iowan Old Style", Georgia, "Times New Roman", serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-body);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+
+  body.is-overview {
+    overflow: auto;
+    place-items: start center;
+    padding: 3vh 2vw;
+  }
+
+  /* ---------- el escenario ---------- */
+
+  #deck {
+    position: relative;
+    width: min(100vw, 177.78vh);
+    aspect-ratio: 16 / 9;
+  }
+
+  .slide {
+    container-type: size;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: var(--ground);
+    display: grid;
+    grid-template-rows: 1fr auto;
+    padding: 6.5cqh 7.5cqh 4.5cqh;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .28s ease;
+  }
+
+  .slide.is-active { opacity: 1; visibility: visible; }
+
+  /* atmósfera: un resplandor frío, muy contenido, arriba a la izquierda */
+  .slide::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(115% 85% at 6% -10%, rgba(110, 200, 190, .075), transparent 58%);
+    pointer-events: none;
+  }
+
+  .body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 3cqh;
+    min-height: 0;
+  }
+
+  .slide.is-active .body > * {
+    animation: rise .34s cubic-bezier(.2, .7, .3, 1) both;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(1.4cqh); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ---------- tipografía ---------- */
+
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: 2.4cqh;
+    font-weight: 500;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    margin: 0;
+    max-width: 80cqw;
+  }
+  .kicker code { background: none; padding: 0; color: var(--accent-soft); text-transform: none; }
+
+  h1, h2, h3 { margin: 0; font-family: var(--font-display); text-wrap: balance; }
+
+  h1 {
+    font-size: 8.6cqh;
+    font-weight: 700;
+    line-height: .98;
+    letter-spacing: -.022em;
+    max-width: 84cqw;
+  }
+
+  h2 {
+    font-size: 6.2cqh;
+    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: -.018em;
+    max-width: 84cqw;
+  }
+
+  h3 {
+    font-size: 4.4cqh;
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -.01em;
+    color: var(--ink-dim);
+    max-width: 80cqw;
+  }
+
+  p {
+    margin: 0;
+    font-size: 4.2cqh;
+    line-height: 1.4;
+    max-width: 74cqw;
+    color: var(--ink);
+  }
+
+  p.lead { font-size: 5.2cqh; line-height: 1.28; max-width: 78cqw; }
+  p.dim  { color: var(--ink-dim); }
+
+  strong { color: var(--accent); font-weight: 600; }
+  h1 strong, h2 strong { font-weight: 700; }
+  em { font-style: italic; color: var(--ink-dim); }
+
+  ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 2.2cqh; }
+
+  li {
+    font-size: 4.2cqh;
+    line-height: 1.35;
+    max-width: 78cqw;
+    padding-left: 4.6cqh;
+    position: relative;
+  }
+
+  li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--ink-faint);
+  }
+
+  blockquote {
+    margin: 0;
+    padding: .3cqh 0 .3cqh 3.2cqh;
+    border-left: .5cqh solid var(--accent-deep);
+    font-size: 3.8cqh;
+    line-height: 1.38;
+    color: var(--ink-dim);
+    max-width: 76cqw;
+  }
+  blockquote strong { color: var(--accent-soft); }
+
+  /* ---------- código ---------- */
+
+  /* Sin ligaduras: en una clase de terminal, `--short` debe leerse literal. */
+  code, pre, .kicker, .foot, .meta, .eyebrow, .tag, .where, th, .railbig span {
+    font-variant-ligatures: none;
+    font-feature-settings: "liga" 0, "calt" 0;
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: .88em;
+    color: var(--code-ink);
+    background: #0f2124;
+    padding: .1em .34em;
+    border-radius: .25em;
+  }
+
+  pre {
+    margin: 0;
+    width: 100%;
+    max-width: 88cqw;
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-radius: 1.4cqh;
+    padding: 3cqh 3.4cqh;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 3.3cqh;
+    line-height: 1.58;
+    color: var(--code-ink);
+    tab-size: 2;
+  }
+
+  pre code { background: none; padding: 0; font-size: 1em; }
+  pre .k { color: var(--code-key); }
+  pre .s { color: var(--code-str); }
+  pre .c { color: var(--ink-faint); }
+  pre .plus { color: #86c8a8; }
+
+  pre.term { border-color: var(--rule-soft); color: var(--accent-soft); }
+
+  /* ---------- tablas ---------- */
+
+  .tablewrap { width: 100%; max-width: 90cqw; overflow-x: auto; }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-variant-numeric: tabular-nums;
+  }
+
+  th {
+    font-family: var(--font-mono);
+    font-size: 2.3cqh;
+    font-weight: 500;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    text-align: left;
+    padding: 0 2.6cqh 1.4cqh 0;
+    border-bottom: 1px solid var(--accent-deep);
+    white-space: nowrap;
+  }
+
+  td {
+    font-size: 3.5cqh;
+    line-height: 1.3;
+    padding: 1.9cqh 2.6cqh 1.9cqh 0;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  td:last-child, th:last-child { padding-right: 0; }
+  td code { font-size: .82em; }
+
+  /* ---------- el riel de la clase ---------- */
+
+  .foot {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 3cqh;
+    padding-top: 2.4cqh;
+    border-top: 1px solid var(--rule-soft);
+    font-family: var(--font-mono);
+    font-size: 2cqh;
+    letter-spacing: .09em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+  }
+
+  .foot .now { color: var(--ink-dim); white-space: nowrap; }
+  .foot .now b { color: var(--accent); font-weight: 500; }
+  .foot .count { margin-left: auto; white-space: nowrap; }
+
+  .rail { display: flex; gap: .5cqh; flex: 1; min-width: 0; }
+
+  .rail i {
+    height: .9cqh;
+    border-radius: .45cqh;
+    background: var(--rule);
+    min-width: .9cqh;
+  }
+
+  .rail i.past { background: #33565a; }
+  .rail i.on   { background: var(--accent); }
+
+  /* ---------- variantes de diapositiva ---------- */
+
+  /* portada */
+  .s-cover { grid-template-rows: 1fr auto; }
+  .s-cover .body { justify-content: flex-end; gap: 2.6cqh; }
+  .s-cover .eyebrow {
+    margin-bottom: auto;
+    font-family: var(--font-mono);
+    font-size: 2.3cqh;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .s-cover .hairline { width: 16cqw; height: .6cqh; background: var(--accent); border-radius: .3cqh; }
+  .s-cover h1 { font-size: 11cqh; letter-spacing: -.028em; }
+  .s-cover .meta {
+    font-family: var(--font-mono);
+    font-size: 2.6cqh;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .railcap {
+    font-family: var(--font-mono);
+    font-size: 1.9cqh;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-top: 1.4cqh;
+  }
+
+  .railbig { display: flex; gap: .6cqh; width: 100%; }
+  .railbig .rb {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1cqh;
+    min-width: 0;
+  }
+  .railbig .rb b { height: 1.2cqh; border-radius: .6cqh; background: var(--rule); display: block; }
+  .railbig .rb.hi b { background: var(--accent-deep); }
+  .railbig .rb span {
+    font-family: var(--font-mono);
+    font-size: 1.7cqh;
+    line-height: 1.25;
+    letter-spacing: .04em;
+    color: var(--ink-faint);
+    overflow: hidden;
+  }
+  .railbig .rb.hi span { color: var(--ink-dim); }
+
+  /* crescendo: autocompletado → chat → agente */
+  .s-crescendo .body { gap: 1.6cqh; }
+  .s-crescendo .step {
+    font-family: var(--font-display);
+    font-size: 5.6cqh;
+    font-weight: 400;
+    color: var(--ink-faint);
+    letter-spacing: -.01em;
+    line-height: 1.1;
+  }
+  .s-crescendo .punch {
+    font-family: var(--font-display);
+    font-size: 13cqh;
+    font-weight: 800;
+    letter-spacing: -.035em;
+    line-height: .95;
+    color: var(--ink);
+  }
+  .s-crescendo .underline { width: 22cqw; height: .8cqh; background: var(--accent); border-radius: .4cqh; }
+
+  /* trío predice / responde / actúa */
+  /* La segunda columna es 1fr para que las dos celdas de cada fila
+     formen una única línea continua en vez de dos rayas desiguales. */
+  .verbs { display: grid; grid-template-columns: max-content 1fr; column-gap: 5cqw; width: 100%; }
+  .verbs > * { padding: 2.2cqh 0; border-bottom: 1px solid var(--rule-soft); align-self: baseline; }
+  .verbs > :nth-last-child(-n+2) { border-bottom: none; }
+  .verbs dt {
+    font-family: var(--font-body);
+    font-size: 4.6cqh;
+    color: var(--ink-dim);
+    line-height: 1.1;
+  }
+  .verbs dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 6.4cqh;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1;
+  }
+  .verbs .final { color: var(--accent); }
+
+  /* demo */
+  .s-demo { background: var(--ground-2); }
+  .s-demo::before {
+    background: radial-gradient(100% 80% at 4% -10%, rgba(242, 181, 68, .09), transparent 55%);
+  }
+  .s-demo .body { padding-left: 4.6cqh; }
+  .s-demo .body::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6%;
+    bottom: 6%;
+    width: .8cqh;
+    border-radius: .4cqh;
+    background: var(--accent);
+  }
+  .s-demo .tag {
+    font-family: var(--font-mono);
+    font-size: 2.6cqh;
+    font-weight: 600;
+    letter-spacing: .26em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .s-demo h2 { font-size: 7.4cqh; font-weight: 700; }
+  .s-demo .where {
+    font-family: var(--font-mono);
+    font-size: 2.3cqh;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  /* cierre */
+  .s-end .body { justify-content: center; gap: 3.4cqh; }
+  .s-end h1 { font-size: 12cqh; }
+
+  /* ---------- notas del ponente (ocultas por defecto) ---------- */
+
+  .notes { display: none; }
+
+  body.show-notes .slide.is-active .notes {
+    display: block;
+    position: absolute;
+    left: 7.5cqh;
+    right: 7.5cqh;
+    bottom: 12cqh;
+    background: #050c0d;
+    border: 1px solid var(--accent-deep);
+    border-radius: 1cqh;
+    padding: 2cqh 2.4cqh;
+    font-family: var(--font-mono);
+    font-size: 2.1cqh;
+    line-height: 1.5;
+    color: var(--accent-soft);
+    white-space: pre-line;
+    z-index: 5;
+  }
+
+  /* ---------- vista general ---------- */
+
+  #deck.is-overview {
+    width: min(96vw, 1560px);
+    aspect-ratio: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(238px, 1fr));
+    gap: 12px;
+  }
+
+  #deck.is-overview .slide {
+    /* relative, no static: si no, el ::before de cada diapositiva
+       se posiciona contra #deck y el resplandor inunda la rejilla. */
+    position: relative;
+    aspect-ratio: 16 / 9;
+    opacity: 1;
+    visibility: visible;
+    outline: 1px solid var(--rule-soft);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  #deck.is-overview .slide.is-active { outline: 2px solid var(--accent); }
+  #deck.is-overview .slide .body > * { animation: none; }
+  #deck.is-overview .notes { display: none !important; }
+
+  /* ---------- mandos del ponente ---------- */
+
+  .controls {
+    position: fixed;
+    right: 14px;
+    bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: .16;
+    transition: opacity .2s ease;
+    z-index: 20;
+  }
+
+  .controls:hover, .controls:focus-within { opacity: 1; }
+
+  .controls button {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1;
+    color: var(--ink-dim);
+    background: #0a1416;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 7px 9px;
+    cursor: pointer;
+  }
+
+  .controls button:hover { color: var(--accent); border-color: var(--accent-deep); }
+  .controls button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  #help {
+    position: fixed;
+    inset: 0;
+    display: none;
+    place-items: center;
+    background: rgba(5, 12, 13, .82);
+    z-index: 30;
+    padding: 4vh;
+  }
+
+  body.show-help #help { display: grid; }
+
+  #help .panel {
+    background: var(--ground-2);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 26px 30px;
+    max-width: 460px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 2;
+    color: var(--ink-dim);
+  }
+
+  #help h4 {
+    margin: 0 0 14px;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -.01em;
+  }
+
+  #help kbd {
+    display: inline-block;
+    min-width: 2.4em;
+    text-align: center;
+    color: var(--accent);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 0 6px;
+    margin-right: 10px;
+    background: #0a1416;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide, .slide.is-active .body > *, .controls { transition: none; animation: none; }
+  }
+
+  /* ---------- impresión: una diapositiva por página ---------- */
+
+  @page { size: 1280px 720px; margin: 0; }
+
+  @media print {
+    /* Sin esto el navegador imprime los fondos en blanco. */
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { display: block; overflow: visible; background: var(--ground); }
+    #deck, #deck.is-overview {
+      width: auto;
+      aspect-ratio: auto;
+      display: block;
+      max-width: none;
+    }
+    #deck.is-overview .slide, .slide {
+      position: relative;
+      width: 1280px;
+      height: 720px;
+      opacity: 1;
+      visibility: visible;
+      outline: none;
+      border-radius: 0;
+      break-after: page;
+      page-break-after: always;
+    }
+    .slide .body > * { animation: none; }
+    .controls, #help, .notes { display: none !important; }
+  }
+</style>
+
+<div id="deck">
+
+  <!-- 1 · portada -->
+  <section class="slide s-cover">
+    <div class="body">
+      <p class="eyebrow">CTI Soluciones · formación interna</p>
+      <div class="hairline"></div>
+      <h1>IA aplicada a la<br>programación</h1>
+      <h3>Agentes de código en la terminal con opencode</h3>
+      <p class="meta">84 minutos · 14 bloques · 8 demos en vivo</p>
+      <p class="railcap">El mapa de la clase · la anchura son los minutos</p>
+      <div class="railbig" data-railbig></div>
+    </div>
+    <aside class="notes">Bloque 1. Minuto 0. Arrancar con las tres preguntas a la sala.</aside>
+  </section>
+
+  <!-- 2 · crescendo -->
+  <section class="slide s-crescendo" data-block="1">
+    <div class="body">
+      <div class="step">Autocompletado</div>
+      <div class="step">Chat</div>
+      <div class="punch">Agente</div>
+      <div class="underline"></div>
+    </div>
+  </section>
+
+  <!-- 3 · los tres verbos -->
+  <section class="slide" data-block="1">
+    <div class="body">
+      <dl class="verbs">
+        <dt>El autocompletado</dt><dd>predice.</dd>
+        <dt>El chat</dt><dd>responde.</dd>
+        <dt>El agente</dt><dd class="final">actúa.</dd>
+      </dl>
+    </div>
+    <aside class="notes">Lee tu repositorio, edita ficheros, ejecuta comandos e itera solo hasta cerrar la tarea.</aside>
+  </section>
+
+  <!-- 4 · la promesa -->
+  <section class="slide" data-block="1">
+    <div class="body">
+      <p class="kicker">Hoy, partiendo de un proyecto ya configurado</p>
+      <h1>Una web con el temario de esta clase</h1>
+      <h3>Menú de módulos: agentes, skills, MCP…</h3>
+      <p class="dim">Sin escribir una línea de código a mano.<br>Y no la construye un agente: la construye <strong>un equipo</strong>.</p>
+      <blockquote>Y lo importante no es que la genere: es <strong>cómo se le enseña a trabajar como trabaja tu equipo</strong>.</blockquote>
+    </div>
+    <aside class="notes">La promesa. Al final se cierra mostrando la app.</aside>
+  </section>
+
+  <!-- 5 · qué es opencode -->
+  <section class="slide" data-block="2">
+    <div class="body">
+      <h2>opencode</h2>
+      <ul>
+        <li>Agente de código <strong>open source</strong>, vive en la <strong>terminal</strong></li>
+        <li><strong>Agnóstico de proveedor</strong>: 75+ modelos, sin depender de un fabricante</li>
+        <li>Cliente/servidor: funciona igual en local que <strong>por SSH</strong></li>
+        <li>También app de escritorio y extensión de IDE</li>
+      </ul>
+    </div>
+    <aside class="notes">Bloque 2. Minuto 2. Dos minutos y a la terminal.</aside>
+  </section>
+
+  <!-- 6 · instalar -->
+  <section class="slide" data-block="3">
+    <div class="body">
+      <h2>Instalar</h2>
+      <pre class="term"><code>npm install -g opencode-ai</code></pre>
+    </div>
+    <aside class="notes">Bloque 3. Minuto 4.</aside>
+  </section>
+
+  <!-- 7 · el modelo lo pones tú -->
+  <section class="slide" data-block="3">
+    <div class="body">
+      <p class="kicker">opencode no trae cerebro incluido</p>
+      <h1>El modelo lo pones tú</h1>
+      <pre class="term"><code>/connect</code></pre>
+      <p class="dim">Eso es lo que significa <strong>agnóstico de proveedor</strong>.</p>
+    </div>
+  </section>
+
+  <!-- 8 · capa gratuita -->
+  <section class="slide" data-block="3">
+    <div class="body">
+      <h2>Para empezar: la capa gratuita de opencode</h2>
+      <p class="dim">Una lista de modelos <strong>ya probados</strong> con agentes.<br>No tienes que investigar cuál funciona.</p>
+      <pre class="term"><code>/connect        <span class="c">elegir el proveedor</span>
+/models         <span class="c">ver y cambiar el modelo activo</span></code></pre>
+      <blockquote>Los modelos gratuitos tienen duración limitada y <strong>sus datos pueden usarse para mejorar el modelo</strong>. Para aprender, perfecto. Para código de cliente, mira proveedor y plan.</blockquote>
+    </div>
+  </section>
+
+  <!-- 9 · tour: el proyecto ya configurado -->
+  <section class="slide" data-block="4">
+    <div class="body">
+      <h2>El proyecto ya viene configurado</h2>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Pieza</th><th>Qué resuelve</th></tr></thead>
+          <tbody>
+            <tr><td><code>AGENTS.md</code></td><td>Las reglas de la casa</td></tr>
+            <tr><td><code>opencode.json</code> → <code>agent</code></td><td>El equipo: cuatro roles con permisos</td></tr>
+            <tr><td><code>.opencode/commands/commit.md</code></td><td>Un comando que lanzo <strong>yo</strong></td></tr>
+            <tr><td><code>.opencode/skills/i18n/</code></td><td>Un procedimiento que carga <strong>él solo</strong></td></tr>
+            <tr><td><code>opencode.json</code> → <code>mcp</code></td><td>Un navegador de verdad</td></tr>
+            <tr><td><code>docs/</code> + <code>TEMARIO.md</code></td><td>Contexto y contenido</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="dim">Seis piezas. Ninguna cuesta más de <strong>cinco minutos</strong> de escribir.</p>
+    </div>
+    <aside class="notes">Bloque 4. Minuto 8. TOUR: 45 segundos por pieza, y ni uno más.
+Cada una por el problema que resuelve, no por su sintaxis.
+Luego se pasa al editor con el proyecto abierto.</aside>
+  </section>
+
+  <!-- 10 · dos agentes de serie -->
+  <section class="slide" data-block="5">
+    <div class="body">
+      <h2>Vienen dos agentes de serie</h2>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th></th><th>Permisos</th><th>Para qué</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Build</strong></td><td>Sin restricciones</td><td>Ejecutar el trabajo</td></tr>
+            <tr><td><strong>Plan</strong></td><td><code>edit: deny</code><br><code>bash: deny</code></td><td>Pensar antes de tocar nada</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <aside class="notes">Bloque 5. Minuto 14. Hace posible todo lo que viene después.</aside>
+  </section>
+
+  <!-- 11 · plan no es más tonto -->
+  <section class="slide" data-block="5">
+    <div class="body">
+      <h1>Plan no es un modo más tonto</h1>
+      <p class="lead dim">Es el <strong>mismo modelo</strong> con las manos atadas.</p>
+    </div>
+  </section>
+
+  <!-- 12 · Tab -->
+  <section class="slide" data-block="5">
+    <div class="body">
+      <p class="kicker"><code>Tab</code> no alterna dos modos</p>
+      <h1>Cicla <strong>todos</strong> los agentes primarios</h1>
+      <p class="dim">Si te defines un tercero, entra en la rueda.</p>
+    </div>
+    <aside class="notes">Esto lo cuenta mal medio internet.</aside>
+  </section>
+
+  <!-- 13 · anatomía de un agente -->
+  <section class="slide" data-block="5">
+    <div class="body">
+      <h2>Un agente = modelo + prompt + permisos</h2>
+      <pre><code><span class="s">"agent"</span>: {
+  <span class="k">"architect"</span>: {
+    <span class="k">"mode"</span>: <span class="s">"subagent"</span>,
+    <span class="k">"prompt"</span>: <span class="s">"Eres el arquitecto del proyecto..."</span>,
+    <span class="k">"permission"</span>: { <span class="k">"edit"</span>: <span class="s">"deny"</span>, <span class="k">"bash"</span>: <span class="s">"deny"</span> }
+  }
+}</code></pre>
+      <p class="dim"><code>mode</code>: <strong><code>primary</code></strong> · <strong><code>subagent</code></strong> · <code>all</code> <em>(por defecto)</em></p>
+    </div>
+  </section>
+
+  <!-- 14 · subagentes -->
+  <section class="slide" data-block="5">
+    <div class="body">
+      <h2>Subagentes</h2>
+      <pre class="term"><code>@reviewer revisa este cambio y dime qué se me escapa</code></pre>
+      <ul>
+        <li>Contexto <strong>separado</strong>: no ensucia tu conversación</li>
+        <li>Con <code>edit: deny</code>: <strong>revisa sin poder tocar</strong></li>
+        <li><code>@</code> hace doble función: <strong>ficheros y subagentes</strong></li>
+      </ul>
+      <blockquote>Quien revisa, no arregla.</blockquote>
+    </div>
+  </section>
+
+  <!-- 15 · permission.task -->
+  <section class="slide" data-block="5">
+    <div class="body">
+      <h2><code>permission.task</code> — a quién puede llamar cada uno</h2>
+      <pre><code><span class="s">"permission"</span>: {
+  <span class="k">"task"</span>: {
+    <span class="k">"*"</span>: <span class="s">"deny"</span>,
+    <span class="k">"architect"</span>: <span class="s">"allow"</span>,
+    <span class="k">"developer"</span>: <span class="s">"allow"</span>
+  }
+}</code></pre>
+      <p class="dim">Suena a detalle menor.<br>Es la pieza que hace posible lo siguiente.</p>
+    </div>
+  </section>
+
+  <!-- 16 · no un agente, un equipo -->
+  <section class="slide" data-block="5">
+    <div class="body">
+      <p class="lead dim">Si un agente tiene su <strong>prompt</strong>, sus <strong>permisos</strong> y decide <strong>a quién delega</strong>…</p>
+      <h1>…no tengo por qué tener un agente</h1>
+      <h1>Puedo tener un <strong>equipo</strong></h1>
+    </div>
+  </section>
+
+  <!-- 17 · demo bloque 5 -->
+  <section class="slide s-demo" data-block="5">
+    <div class="body">
+      <p class="tag">Demo</p>
+      <h2>La misma petición en Plan y en Build</h2>
+      <p class="where">→ terminal</p>
+    </div>
+    <aside class="notes">Demo del bloque 5. Incluye el momento "vale, créalo" dentro de Plan.
+Plan se niega, y ahí se corta: la app la construye el equipo.</aside>
+  </section>
+
+  <!-- 18 · el equipo -->
+  <section class="slide" data-block="6">
+    <div class="body">
+      <h2>El equipo</h2>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Agente</th><th>Permisos</th><th>Su trabajo</th></tr></thead>
+          <tbody>
+            <tr><td><strong>orchestrator</strong></td><td><code>edit: deny</code> + <code>task</code> acotado</td><td>Divide, delega y comprueba</td></tr>
+            <tr><td><strong>architect</strong></td><td><code>edit: deny</code>, <code>bash: deny</code></td><td>Estructura, componentes, tipos</td></tr>
+            <tr><td><strong>developer</strong></td><td><code>edit: allow</code>, <code>bash: allow</code></td><td>Implementa</td></tr>
+            <tr><td><strong>reviewer</strong></td><td><code>edit: deny</code></td><td>Valida y da veredicto</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <aside class="notes">Bloque 6. Minuto 21. El centro de la clase.
+Leer la tabla ANTES de lanzar nada.</aside>
+  </section>
+
+  <!-- 19 · sin manos -->
+  <section class="slide" data-block="6">
+    <div class="body">
+      <h1>Al orquestador le he quitado las manos</h1>
+      <p class="lead dim">Con <code>edit: deny</code> no puede escribir ni una línea.</p>
+      <p class="lead"><strong>No tiene más opción que delegar.</strong></p>
+    </div>
+    <aside class="notes">"No le he pedido por favor que delegue.
+Le he quitado la capacidad de hacerlo él mismo."</aside>
+  </section>
+
+  <!-- 20 · tres de cuatro -->
+  <section class="slide" data-block="6">
+    <div class="body">
+      <h2>Tres de los cuatro no pueden escribir</h2>
+      <p><strong>El arquitecto</strong> diseña. Ejecuta otro.</p>
+      <p><strong>El revisor</strong> valida y da veredicto: <code>APTO</code> o <code>CAMBIOS NECESARIOS</code>.</p>
+      <p><strong>El desarrollador</strong> es el único con manos — y el más acotado de todos: no amplía alcance, no refactoriza, no añade dependencias.</p>
+    </div>
+  </section>
+
+  <!-- 21 · demo bloque 6 -->
+  <section class="slide s-demo" data-block="6">
+    <div class="body">
+      <p class="tag">Demo</p>
+      <h2>El equipo construye la web</h2>
+      <p class="where">→ terminal · el centro de la clase</p>
+    </div>
+    <aside class="notes">Demo del bloque 6. Narrar el flujo: delega → plan → implementa → revisa → veredicto.
+Si el revisor dice CAMBIOS NECESARIOS, celebrarlo.
+OJO: el 6.4 (textos por t()) es obligatorio, lo necesita el bloque 11.</aside>
+  </section>
+
+  <!-- 22 · el coste -->
+  <section class="slide" data-block="6">
+    <div class="body">
+      <h2>Y el coste, dicho claro</h2>
+      <p>Un equipo es <strong>más lento y más caro</strong>: cada delegación es un contexto y un viaje aparte.</p>
+      <p class="dim">Para un cambio de dos líneas, un absurdo.</p>
+      <p>Merece la pena en <strong>tareas grandes</strong>, para <strong>separar diseño de ejecución</strong>, y para tener una <strong>revisión no contaminada</strong>.</p>
+    </div>
+  </section>
+
+  <!-- 23 · no va de más agentes -->
+  <section class="slide" data-block="6">
+    <div class="body">
+      <p class="lead dim">Esto no va de tener <strong>más agentes</strong>.</p>
+      <h2>Va de <strong>escribir cómo trabaja tu equipo</strong> —los roles, quién toca qué, en qué orden— y dejarlo en el repositorio.</h2>
+    </div>
+  </section>
+
+  <!-- 24 · tu trabajo ha cambiado -->
+  <section class="slide" data-block="7">
+    <div class="body">
+      <p class="kicker">Tu trabajo ha cambiado</p>
+      <h1>De escribir código a <strong>revisarlo</strong></h1>
+      <p class="dim">El agente escribe código <strong>plausible</strong>.<br>Que no es lo mismo que código <strong>correcto</strong>.</p>
+    </div>
+    <aside class="notes">Bloque 7. Minuto 37. El bloque que les evita un tortazo.</aside>
+  </section>
+
+  <!-- 25 · capa 1 -->
+  <section class="slide" data-block="7">
+    <div class="body">
+      <p class="kicker">Capa 1 · el diff</p>
+      <h2>Cada edición aparece con lo que quita y lo que pone</h2>
+      <ul>
+        <li>¿Ha tocado <strong>ficheros que no esperabas</strong>?</li>
+        <li>¿Ha añadido <strong>dependencias</strong> sin pedírtelo?</li>
+        <li>¿Están los <strong>casos límite</strong>? <em>(es lo que más se le escapa)</em></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 26 · capa 2 -->
+  <section class="slide" data-block="7">
+    <div class="body">
+      <p class="kicker">Capa 2 · pídele cuentas</p>
+      <pre class="term"><code>Resúmeme todo lo que has cambiado
+en esta sesión y por qué</code></pre>
+      <p class="lead">No reconstruyas su trabajo a mano. <strong>Pregúntaselo.</strong></p>
+    </div>
+  </section>
+
+  <!-- 27 · capa 3 -->
+  <section class="slide" data-block="7">
+    <div class="body">
+      <p class="kicker">Capa 3 · que lo revise quien no puede escribir</p>
+      <pre class="term"><code>@reviewer revisa el cambio que se acaba de hacer
+y dime si hay algo que se me escape</code></pre>
+      <ul>
+        <li>Tiene <code>edit: deny</code>: <strong>revisa y no puede arreglar</strong></li>
+        <li>Contexto separado: llega al código <strong>sin los sesgos</strong> de la conversación</li>
+      </ul>
+      <p class="dim">Sin configurar nada: <code>Tab</code> hasta <strong>Plan</strong> y pregunta desde ahí.</p>
+    </div>
+  </section>
+
+  <!-- 28 · deshacer -->
+  <section class="slide" data-block="7">
+    <div class="body">
+      <h2>Deshacer</h2>
+      <pre class="term"><code>/undo     <span class="c">revierte el último cambio del agente</span>
+/redo     <span class="c">lo vuelve a aplicar</span></code></pre>
+      <p>Si se ha ido por un camino que no te gusta: <strong>/undo y reformula.</strong> Más rápido que pelearse con el resultado.</p>
+    </div>
+  </section>
+
+  <!-- 29 · las tres capas -->
+  <section class="slide" data-block="7">
+    <div class="body">
+      <dl class="verbs">
+        <dt>Los permisos</dt><dd>evitan que lo haga.</dd>
+        <dt>El diff y el revisor</dt><dd>te dejan verlo.</dd>
+        <dt><code>/undo</code></dt><dd class="final">te deja quitarlo.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- 30 · demo bloque 7 -->
+  <section class="slide s-demo" data-block="7">
+    <div class="body">
+      <p class="tag">Demo</p>
+      <h2>Revisar de tres formas y deshacer</h2>
+      <p class="where">→ terminal</p>
+    </div>
+    <aside class="notes">Demo del bloque 7. 6 minutos.</aside>
+  </section>
+
+  <!-- 31 · AGENTS.md -->
+  <section class="slide" data-block="8">
+    <div class="body">
+      <h2><code>AGENTS.md</code></h2>
+      <p class="dim">Markdown en la raíz del repositorio, <strong>siempre</strong> en el contexto.</p>
+      <pre class="term"><code>/init</code></pre>
+      <ul>
+        <li>Genera un buen <strong>borrador</strong>, no la verdad: ábrelo y corrígelo</li>
+        <li>Mete las <strong>rarezas</strong> del proyecto. No metas la novela: ocupa contexto</li>
+        <li><strong>Se commitea</strong> → el equipo tiene una forma acordada de trabajar</li>
+      </ul>
+    </div>
+    <aside class="notes">Bloque 8. Minuto 43. Ya se enseñó en el tour: aquí se explica.</aside>
+  </section>
+
+  <!-- 32 · precedencia -->
+  <section class="slide" data-block="8">
+    <div class="body">
+      <h2>La precedencia: qué es</h2>
+      <p class="dim">Las reglas pueden estar en varios sitios. opencode los mira <strong>en orden</strong> y se queda con <strong>el primero que encuentra</strong>.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Orden</th><th>Dónde</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><code>AGENTS.md</code> <strong>del proyecto</strong> <em>(subiendo por el árbol)</em></td></tr>
+            <tr><td>2</td><td><code>~/.config/opencode/AGENTS.md</code> <strong>global</strong></td></tr>
+            <tr><td>3</td><td><code>~/.claude/CLAUDE.md</code> <em>(compatibilidad)</em></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 33 · cuál uso -->
+  <section class="slide" data-block="8">
+    <div class="body">
+      <h2>Cuál uso</h2>
+      <p><strong>Proyecto</strong> → las reglas <strong>del equipo</strong>. Se commitea y las comparten todos.</p>
+      <p><strong>Global</strong> → tus <strong>manías personales</strong>. Cómo te gusta que te responda, en qué idioma.</p>
+      <blockquote>Si escribes una convención del equipo en tu fichero global, tú trabajarás bien y tus compañeros no. Y encima no te vas a dar cuenta.</blockquote>
+    </div>
+  </section>
+
+  <!-- 34 · demo bloque 8 -->
+  <section class="slide s-demo" data-block="8">
+    <div class="body">
+      <p class="tag">Demo</p>
+      <h2>Una regla que se cumple</h2>
+      <p class="where">→ editor + terminal</p>
+    </div>
+    <aside class="notes">Demo del bloque 8. Señalar las tres cosas que no estaban en el prompt.</aside>
+  </section>
+
+  <!-- 35 · siempre cargado → corto -->
+  <section class="slide" data-block="9">
+    <div class="body">
+      <p class="kicker"><code>AGENTS.md</code> está siempre cargado</p>
+      <h1>Así que tiene que ser <strong>corto</strong></h1>
+      <p class="lead dim">¿Y el resto del conocimiento del proyecto?</p>
+    </div>
+    <aside class="notes">Bloque 9. Minuto 48.</aside>
+  </section>
+
+  <!-- 36 · docs/ -->
+  <section class="slide" data-block="9">
+    <div class="body">
+      <h2><code>docs/</code> en markdown, en el repositorio</h2>
+      <pre><code>{ <span class="k">"instructions"</span>: [<span class="s">"docs/**/*.md"</span>] }</code></pre>
+      <p>El agente escribe la documentación.<br><strong>Y la documentación mejora al agente.</strong></p>
+      <blockquote>Deja de ser un impuesto y se convierte en una inversión que te devuelve trabajo.</blockquote>
+    </div>
+  </section>
+
+  <!-- 37 · quién la mantiene -->
+  <section class="slide" data-block="9">
+    <div class="body">
+      <h2>¿Y quién la mantiene al día?</h2>
+      <p class="dim">Actualizar la doc debe pasar <strong>siempre</strong>. Y lo que pasa siempre no es un comando: es una <strong>regla</strong>.</p>
+      <p class="kicker">Esta línea ya está en AGENTS.md</p>
+      <pre><code><span class="c">-</span> Después de cada cambio funcional, actualiza la documentación
+  de <span class="s">`docs/`</span> que se vea afectada. No hace falta que te lo pida.</code></pre>
+      <p>Por eso lo hace <strong>sin que se lo pidas</strong>.</p>
+    </div>
+    <aside class="notes">El matiz: la regla se aplica también a los cambios triviales,
+y se carga en cada petición. Eso hay que decidirlo con criterio.</aside>
+  </section>
+
+  <!-- 38 · demo bloque 9 -->
+  <section class="slide s-demo" data-block="9">
+    <div class="body">
+      <p class="tag">Demo</p>
+      <h2>La regla actualiza la documentación sola</h2>
+      <p class="where">→ terminal</p>
+    </div>
+    <aside class="notes">Demo del bloque 9. Se pide la etiqueta de nivel y actualiza docs/ sin pedírselo.</aside>
+  </section>
+
+  <!-- 39 · regla vs comando -->
+  <section class="slide" data-block="10">
+    <div class="body">
+      <dl class="verbs">
+        <dt>La doc se actualiza <strong>siempre</strong></dt><dd>regla en <code>AGENTS.md</code></dd>
+        <dt>El commit lo lanzo <strong>yo</strong></dt><dd class="final">comando</dd>
+      </dl>
+    </div>
+    <aside class="notes">Bloque 10. Minuto 53. Transición a comandos propios.</aside>
+  </section>
+
+  <!-- 40 · comandos propios -->
+  <section class="slide" data-block="10">
+    <div class="body">
+      <p class="kicker">.opencode/commands/commit.md → /commit</p>
+      <pre><code><span class="c">---</span>
+<span class="k">description</span>: Crea un commit con un mensaje descriptivo en español
+<span class="k">agent</span>: build
+<span class="c">---</span>
+
+Crea un commit con los cambios actuales.
+
+<span class="s">!`git status --short`</span>
+<span class="s">!`git diff`</span>
+
+Escribe un mensaje en español que diga qué ha cambiado y por qué.
+
+Contexto adicional del autor: <span class="s">$ARGUMENTS</span></code></pre>
+      <p class="dim">El nombre del fichero <strong>es</strong> el nombre del comando.</p>
+    </div>
+  </section>
+
+  <!-- 41 · es una plantilla -->
+  <section class="slide" data-block="10">
+    <div class="body">
+      <h1>El cuerpo no es un texto fijo</h1>
+      <h1>Es una <strong>plantilla</strong></h1>
+      <p class="lead dim">opencode la rellena antes de mandársela al modelo.</p>
+    </div>
+  </section>
+
+  <!-- 42 · lo que tú escribes -->
+  <section class="slide" data-block="10">
+    <div class="body">
+      <p class="kicker">La plantilla · lo que tú escribes</p>
+      <pre><code>Crea un commit con los cambios actuales.
+
+<span class="s">!`git diff`</span>
+
+Contexto adicional del autor: <span class="s">$ARGUMENTS</span></code></pre>
+    </div>
+  </section>
+
+  <!-- 43 · lo que recibe el modelo -->
+  <section class="slide" data-block="10">
+    <div class="body">
+      <p class="kicker">La plantilla · lo que recibe el modelo</p>
+      <pre><code>Crea un commit con los cambios actuales.
+
+<span class="c">diff --git a/src/data/modulos.ts b/src/data/modulos.ts</span>
+<span class="plus">+  nivel: 'basico' | 'intermedio' | 'avanzado'</span>
+<span class="plus">+  ...</span>
+
+Contexto adicional del autor: <span class="s">el buscador ignora acentos</span></code></pre>
+    </div>
+  </section>
+
+  <!-- 44 · los tres huecos -->
+  <section class="slide" data-block="10">
+    <div class="body">
+      <h2>Los tres huecos</h2>
+      <p><strong><code>!`comando`</code></strong> → <strong>ejecuta</strong> ese comando en tu máquina y <strong>pega su salida</strong> en el prompt</p>
+      <p><strong><code>@fichero</code></strong> → se sustituye por el <strong>contenido</strong> del fichero</p>
+      <p><strong><code>$ARGUMENTS</code></strong> · <code>$1</code> · <code>$2</code> → lo que escribas <strong>detrás del comando</strong> <em>(/commit el buscador ignora acentos)</em></p>
+      <p class="dim"><em>@fichero no lo usamos aquí: en /commit no hace falta.</em></p>
+    </div>
+  </section>
+
+  <!-- 45 · por eso lo sabe -->
+  <section class="slide" data-block="10">
+    <div class="body">
+      <h2>Por eso <code>/commit</code> <strong>sabe</strong> qué has cambiado</h2>
+      <p class="lead dim">Tú no se lo has contado: lo ha traído el <code>git diff</code> <strong>dentro del prompt</strong>.</p>
+    </div>
+  </section>
+
+  <!-- 46 · demo bloque 10 -->
+  <section class="slide s-demo" data-block="10">
+    <div class="body">
+      <p class="tag">Demo</p>
+      <h2>Leer <code>/commit</code> y usarlo</h2>
+      <p class="where">→ editor + terminal</p>
+    </div>
+    <aside class="notes">Demo del bloque 10. Enseñar el mensaje que genera y juzgarlo en voz alta.</aside>
+  </section>
+
+  <!-- 47 · ¿y si decide el agente? -->
+  <section class="slide" data-block="11">
+    <div class="body">
+      <p class="dim"><code>AGENTS.md</code> se carga <strong>siempre</strong>.</p>
+      <p class="dim">El commit lo lanzo <strong>yo</strong> → comando</p>
+      <h1>¿Y si quiero que <strong>el agente</strong> decida cuándo aplicar algo?</h1>
+    </div>
+    <aside class="notes">Bloque 11. Minuto 58. La demo estrella.</aside>
+  </section>
+
+  <!-- 48 · skills -->
+  <section class="slide" data-block="11">
+    <div class="body">
+      <h2>Skills</h2>
+      <p class="dim">Procedimientos reutilizables que <strong>el agente carga cuando ve que aplican</strong>.</p>
+      <p class="kicker">.opencode/skills/i18n/SKILL.md</p>
+      <pre><code><span class="c">---</span>
+<span class="k">name</span>: i18n
+<span class="k">description</span>: Procedimiento obligatorio para añadir o cambiar
+  cualquier texto visible de la interfaz. Úsalo siempre que una
+  tarea implique mostrar texto al usuario.
+<span class="c">---</span>
+1. Añade la clave en <span class="s">`src/i18n/es.json`</span>
+2. Usa <span class="s">`t('clave')`</span>, nunca el literal</code></pre>
+      <p class="dim"><code>name</code> <strong>debe coincidir con la carpeta</strong>.</p>
+    </div>
+  </section>
+
+  <!-- 49 · cómo funciona por dentro -->
+  <section class="slide" data-block="11">
+    <div class="body">
+      <h2>Cómo funciona por dentro</h2>
+      <p>El agente solo ve una lista de <strong>nombres y descripciones</strong>.</p>
+      <p>Si le encaja, llama a la herramienta <code>skill</code> y <strong>entonces</strong> carga el contenido.</p>
+      <blockquote>La descripción es <strong>lo único que ve antes de decidir</strong>. Si está mal escrita, el skill no se usa nunca.</blockquote>
+      <p class="dim">Se escribe pensando en <strong>cuándo activarlo</strong>, no en qué contiene.</p>
+    </div>
+  </section>
+
+  <!-- 50 · cuál de las tres -->
+  <section class="slide" data-block="11">
+    <div class="body">
+      <h2>Cuál de las tres uso</h2>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th></th><th>Quién lo activa</th><th>Cuándo</th><th>Coste</th></tr></thead>
+          <tbody>
+            <tr><td><code>AGENTS.md</code></td><td>Siempre cargado</td><td>Aplica a <strong>todo</strong></td><td>Siempre</td></tr>
+            <tr><td>Comando</td><td><strong>Tú</strong>, con <code>/nombre</code></td><td>Tareas que tú disparas</td><td>Cero</td></tr>
+            <tr><td><strong>Skill</strong></td><td><strong>El agente</strong></td><td>Procedimientos <strong>ocasionales</strong></td><td>Solo la descripción</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="dim">Si aplica siempre → <strong>AGENTS.md</strong>. Si lo lanzas tú → <strong>comando</strong>. Si aplica a veces y el agente puede reconocer cuándo → <strong>skill</strong>.</p>
+    </div>
+    <aside class="notes">Dejar esta slide en pantalla durante la demo.</aside>
+  </section>
+
+  <!-- 51 · demo bloque 11 -->
+  <section class="slide s-demo" data-block="11">
+    <div class="body">
+      <p class="tag">Demo</p>
+      <h2>Un prompt donde <strong>no</strong> aparece la palabra i18n</h2>
+      <p class="where">→ terminal · la demo estrella</p>
+    </div>
+    <aside class="notes">Demo del bloque 11. Señalar la llamada a la herramienta skill.
+Si no lo carga: ES la lección. Usar SKILL-i18n-reforzado.md.</aside>
+  </section>
+
+  <!-- 52 · RAG -->
+  <section class="slide" data-block="12">
+    <div class="body">
+      <h2>RAG</h2>
+      <h3>Retrieval-Augmented Generation</h3>
+      <p>En vez de meterle todo al modelo, <strong>recuperas solo lo relevante</strong> y lo inyectas en el prompt.</p>
+    </div>
+    <aside class="notes">Bloque 12. Minuto 66. Dos minutos y salir.</aside>
+  </section>
+
+  <!-- 53 · el giro -->
+  <section class="slide" data-block="12">
+    <div class="body">
+      <p class="kicker">Y aquí el giro</p>
+      <p class="dim">RAG suele significar vectores y embeddings.</p>
+      <h1>Los agentes de código apenas los usan</h1>
+      <p><code>grep</code> · <code>glob</code> · <code>read</code> — buscan <strong>como buscarías tú</strong>.</p>
+      <p class="dim">Para código funciona mejor: hay estructura y nombres exactos, no similitud difusa.</p>
+    </div>
+  </section>
+
+  <!-- 54 · las tres recuperaciones -->
+  <section class="slide" data-block="12">
+    <div class="body">
+      <p class="kicker">Las tres formas de recuperación de hoy</p>
+      <dl class="verbs">
+        <dt><code>instructions</code></dt><dd><code>docs/**/*.md</code></dd>
+        <dt>Skills</dt><dd>cargados a demanda</dd>
+        <dt>MCP</dt><dd class="final">herramientas nuevas</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- 55 · MCP -->
+  <section class="slide" data-block="13">
+    <div class="body">
+      <h2>MCP · Model Context Protocol</h2>
+      <p class="dim">Un estándar para darle <strong>herramientas nuevas</strong> al agente.</p>
+      <pre><code><span class="s">"mcp"</span>: {
+  <span class="k">"playwright"</span>: {
+    <span class="k">"type"</span>: <span class="s">"local"</span>,
+    <span class="k">"command"</span>: [<span class="s">"npx"</span>, <span class="s">"-y"</span>, <span class="s">"@playwright/mcp@latest"</span>]
+  }
+}</code></pre>
+      <p class="dim">Remoto por URL, o local por comando. <strong>Tres líneas.</strong></p>
+    </div>
+    <aside class="notes">Bloque 13. Minuto 68.</aside>
+  </section>
+
+  <!-- 56 · un navegador de verdad -->
+  <section class="slide" data-block="13">
+    <div class="body">
+      <h2>Y con eso el agente tiene un navegador</h2>
+      <pre class="term"><code>Abre la aplicación en localhost:5173, escribe «skill»
+en el buscador y dime si filtra correctamente</code></pre>
+      <p class="dim">Navega, escribe, mira lo que ha salido y te contesta.</p>
+      <blockquote>Es una capacidad que <strong>no puede tener de ninguna otra forma</strong>. Ese es exactamente el argumento de MCP.</blockquote>
+    </div>
+  </section>
+
+  <!-- 57 · demo bloque 13 -->
+  <section class="slide s-demo" data-block="13">
+    <div class="body">
+      <p class="tag">Demo</p>
+      <h2>El agente prueba en un navegador la web que ha construido</h2>
+      <p class="where">→ terminal + navegador</p>
+    </div>
+    <aside class="notes">Demo del bloque 13. 4 minutos. El navegador se abre en pantalla y se mueve solo.
+El navegador debe estar YA descargado (checklist) y npm run dev levantado.
+Si falla, enseñar el JSON y pasar.</aside>
+  </section>
+
+  <!-- 58 · cierre -->
+  <section class="slide s-end">
+    <div class="body">
+      <div class="hairline" style="width:16cqw;height:.6cqh;background:var(--accent);border-radius:.3cqh"></div>
+      <h1>¡Gracias!</h1>
+      <h3>A mis compañeros de CTI, por venir</h3>
+      <p class="dim">Espero que os haya gustado<br>y que el lunes lo probéis.</p>
+    </div>
+    <aside class="notes">Bloque 14. Minuto 72.
+ANTES de llegar aquí: cambiar a la APLICACIÓN y dejarla en pantalla mientras
+dices las tres conclusiones y la mención de riesgos (guion, bloque 13).
+Esta slide es solo el cierre: se proyecta al abrir el turno de preguntas.
+Las respuestas preparadas están al final de GUION-CLASE.md.</aside>
+  </section>
+
+</div>
+
+<div class="controls">
+  <button type="button" data-act="prev" title="Anterior (←)">←</button>
+  <button type="button" data-act="next" title="Siguiente (→)">→</button>
+  <button type="button" data-act="overview" title="Vista general (G)">G</button>
+  <button type="button" data-act="notes" title="Notas del ponente (N)">N</button>
+  <button type="button" data-act="full" title="Pantalla completa (F)">F</button>
+  <button type="button" data-act="help" title="Atajos (?)">?</button>
+</div>
+
+<div id="help">
+  <div class="panel">
+    <h4>Atajos</h4>
+    <div><kbd>→</kbd> siguiente diapositiva</div>
+    <div><kbd>←</kbd> anterior</div>
+    <div><kbd>G</kbd> vista general (clic para saltar)</div>
+    <div><kbd>N</kbd> notas del ponente — <strong>no proyectar</strong></div>
+    <div><kbd>F</kbd> pantalla completa</div>
+    <div><kbd>Esc</kbd> cerrar</div>
+    <div style="margin-top:14px;color:var(--ink-faint)">Ctrl+P → PDF, una diapositiva por página.</div>
+  </div>
+</div>
+
+<script>
+  // Los 14 bloques de la clase: nombre, duración en minutos, hora de inicio.
+  // Las anchuras del riel son proporcionales a la duración real.
+  const BLOQUES = [
+    ['Apertura', 2, '0:00'],
+    ['Qué es opencode', 2, '0:02'],
+    ['Instalación y modelo', 4, '0:04'],
+    ['Tour del proyecto', 6, '0:08'],
+    ['Sistema de agentes', 7, '0:14'],
+    ['El equipo construye la web', 16, '0:21'],
+    ['Revisar y deshacer', 6, '0:37'],
+    ['AGENTS.md', 5, '0:43'],
+    ['docs/', 5, '0:48'],
+    ['Comandos propios', 5, '0:53'],
+    ['Skills', 8, '0:58'],
+    ['RAG', 2, '1:06'],
+    ['MCP', 4, '1:08'],
+    ['Cierre', 2, '1:12'],
+  ];
+
+  const deck = document.getElementById('deck');
+  const slides = Array.from(deck.querySelectorAll('.slide'));
+
+  // Pie de página: bloque activo, riel proporcional y contador.
+  slides.forEach((slide, idx) => {
+    const b = slide.dataset.block;
+    if (!b) return;
+    const n = Number(b);
+    const [nombre, , reloj] = BLOQUES[n - 1];
+    const foot = document.createElement('footer');
+    foot.className = 'foot';
+    const segs = BLOQUES.map(([, dur], i) => {
+      const cls = i + 1 === n ? 'on' : (i + 1 < n ? 'past' : '');
+      return '<i class="' + cls + '" style="flex-grow:' + dur + '"></i>';
+    }).join('');
+    foot.innerHTML =
+      '<span class="now">Bloque <b>' + n + '</b> · ' + reloj + ' · ' + nombre + '</span>' +
+      '<span class="rail">' + segs + '</span>' +
+      '<span class="count">' + (idx + 1) + ' / ' + slides.length + '</span>';
+    slide.appendChild(foot);
+  });
+
+  // Riel grande de la portada: el mapa de la clase, con nombre en los bloques largos.
+  const railbig = deck.querySelector('[data-railbig]');
+  if (railbig) {
+    const mapa = BLOQUES.concat([['Preguntas', 10, '1:14']]);
+    railbig.innerHTML = mapa.map(([nombre, dur]) => {
+      const hi = dur >= 5 ? ' hi' : '';
+      const label = dur >= 5 ? '<span>' + nombre + '</span>' : '<span></span>';
+      return '<div class="rb' + hi + '" style="flex-grow:' + dur + '"><b></b>' + label + '</div>';
+    }).join('');
+  }
+
+  let actual = 0;
+
+  function ir(n, { scroll = false } = {}) {
+    actual = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, i) => s.classList.toggle('is-active', i === actual));
+    history.replaceState(null, '', '#' + (actual + 1));
+    if (scroll) slides[actual].scrollIntoView({ block: 'nearest' });
+  }
+
+  function overview(on) {
+    const activar = on === undefined ? !deck.classList.contains('is-overview') : on;
+    deck.classList.toggle('is-overview', activar);
+    document.body.classList.toggle('is-overview', activar);
+    if (activar) slides[actual].scrollIntoView({ block: 'center' });
+  }
+
+  function fullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen();
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ') {
+      e.preventDefault(); ir(actual + 1, { scroll: true });
+    } else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp') {
+      e.preventDefault(); ir(actual - 1, { scroll: true });
+    } else if (k === 'Home') { e.preventDefault(); ir(0, { scroll: true }); }
+    else if (k === 'End') { e.preventDefault(); ir(slides.length - 1, { scroll: true }); }
+    else if (k === 'g' || k === 'G') { overview(); }
+    else if (k === 'n' || k === 'N') { document.body.classList.toggle('show-notes'); }
+    else if (k === 'f' || k === 'F') { fullscreen(); }
+    else if (k === '?') { document.body.classList.toggle('show-help'); }
+    else if (k === 'Escape') {
+      if (document.body.classList.contains('show-help')) document.body.classList.remove('show-help');
+      else if (deck.classList.contains('is-overview')) overview(false);
+    }
+  });
+
+  deck.addEventListener('click', (e) => {
+    if (deck.classList.contains('is-overview')) {
+      const s = e.target.closest('.slide');
+      if (!s) return;
+      ir(slides.indexOf(s));
+      overview(false);
+      return;
+    }
+    ir(actual + (e.shiftKey ? -1 : 1));
+  });
+
+  document.querySelector('.controls').addEventListener('click', (e) => {
+    const act = e.target.closest('button')?.dataset.act;
+    if (!act) return;
+    e.stopPropagation();
+    if (act === 'next') ir(actual + 1, { scroll: true });
+    if (act === 'prev') ir(actual - 1, { scroll: true });
+    if (act === 'overview') overview();
+    if (act === 'notes') document.body.classList.toggle('show-notes');
+    if (act === 'full') fullscreen();
+    if (act === 'help') document.body.classList.toggle('show-help');
+  });
+
+  document.getElementById('help').addEventListener('click', () => {
+    document.body.classList.remove('show-help');
+  });
+
+  function desdeHash() {
+    const n = Number(location.hash.slice(1));
+    return Number.isFinite(n) && n > 0 ? n - 1 : 0;
+  }
+
+  // Enlace directo a una diapositiva, también sin recargar la página.
+  window.addEventListener('hashchange', () => {
+    if (desdeHash() !== actual) ir(desdeHash(), { scroll: true });
+  });
+
+  ir(desdeHash());
+</script>

@@ -1,0 +1,19 @@
+{
+  "curso.titulo": "IA aplicada a la programación",
+  "curso.subtitulo": "Agentes de código en la terminal con opencode",
+  "app.enConstruccion": "Todavía no hay interfaz: la va a construir el equipo de agentes.",
+  "menu.titulo": "Módulos",
+  "panel.puntos": "Claves",
+  "panel.comandos": "Comandos",
+  "panel.ficheros": "Ficheros",
+  "panel.codigo": "Código",
+  "codigo.copiar": "Copiar",
+  "codigo.copiado": "Copiado",
+  "codigo.copiarAria": "Copiar el código de {ruta}",
+  "codigo.errorCopiar": "No se ha podido copiar. Selecciona el texto y cópialo a mano.",
+  "panel.seleccionar": "Selecciona un módulo",
+  "selector.idioma": "Idioma",
+  "boton.descargarPdf": "Descargar PDF",
+  "boton.generando": "Generando...",
+  "boton.errorGenerandoPdf": "Error al generar el PDF. Consulta la consola para más detalles."
+}

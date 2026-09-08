@@ -1,0 +1,269 @@
+.panel-modulo {
+  /* Celda 1fr de la retícula: sin esto los bloques de código la ensanchan. */
+  min-width: 0;
+  padding: 0;
+}
+
+/*
+  La medida de lectura vive en la prosa, no en el panel. El código es una figura:
+  rompe la caja de texto y ocupa la columna entera, como los listados de un manual.
+*/
+.panel-modulo__cabecera,
+.panel-modulo__seccion {
+  max-width: 68ch;
+}
+
+.panel-modulo__seccion--codigo {
+  max-width: none;
+}
+
+.panel-modulo--vacio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 18rem;
+  font-family: var(--fuente-mono);
+  font-size: var(--t-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lapiz);
+}
+
+/* Entrada escalonada: se redispara en cada cambio de módulo por la `key`. */
+.panel-modulo__cabecera,
+.panel-modulo__seccion {
+  animation: panel-entrada 0.55s var(--curva) both;
+  animation-delay: calc(var(--i) * 0.06s);
+}
+
+@keyframes panel-entrada {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* --------------------------------------------------------------- cabecera */
+
+.panel-modulo__cabecera {
+  margin-bottom: var(--e-12);
+}
+
+/* Numeral de capítulo: marca de agua en contorno, como una portadilla */
+.panel-modulo__numeral {
+  display: block;
+  margin-bottom: -0.12em;
+  font-family: var(--fuente-display);
+  font-size: clamp(4rem, 11vw, 7rem);
+  font-weight: 800;
+  line-height: 0.78;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--pelo);
+}
+
+.panel-modulo__titulo {
+  position: relative;
+  margin: 0 0 var(--e-3);
+  font-size: var(--t-xl);
+  font-weight: 800;
+  font-stretch: 95%;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.panel-modulo__subtitulo {
+  margin: 0;
+  padding-left: var(--e-4);
+  border-left: 2px solid var(--rojo);
+  font-family: var(--fuente-cuerpo);
+  font-size: var(--t-md);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--grafito);
+}
+
+/* --------------------------------------------------------------- secciones */
+
+.panel-modulo__seccion {
+  margin-bottom: var(--e-12);
+}
+
+.panel-modulo__seccion:last-child {
+  margin-bottom: 0;
+}
+
+/* Rótulo + regla de un pelo que rellena el ancho restante */
+.panel-modulo__subtitulo-seccion {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  margin: 0 0 var(--e-4);
+  font-family: var(--fuente-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--lapiz);
+}
+
+.panel-modulo__subtitulo-seccion::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--pelo);
+}
+
+/* ------------------------------------------------------------------ claves */
+
+.panel-modulo__lista-puntos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--fuente-cuerpo);
+  font-size: var(--t-md);
+  line-height: 1.75;
+}
+
+.panel-modulo__lista-puntos li {
+  position: relative;
+  padding-left: var(--e-8);
+  margin-bottom: var(--e-3);
+}
+
+.panel-modulo__lista-puntos li:last-child {
+  margin-bottom: 0;
+}
+
+.panel-modulo__lista-puntos li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--rojo);
+  font-family: var(--fuente-mono);
+  font-size: var(--t-sm);
+}
+
+/* ---------------------------------------------------------------- comandos */
+
+.panel-modulo__lista-comandos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+}
+
+.panel-modulo__lista-comandos li {
+  padding: var(--e-1) var(--e-3);
+  border: 1px solid var(--pelo-fuerte);
+  background: var(--papel-alto);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.panel-modulo__lista-comandos li:hover {
+  border-color: var(--tinta);
+  background: var(--papel-hondo);
+}
+
+.panel-modulo__lista-comandos code {
+  font-family: var(--fuente-mono);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  color: var(--tinta);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- ficheros
+
+  Índice de manual impreso: ruta a la izquierda, para qué sirve a la derecha,
+  y puntos guía uniendo las dos.
+*/
+
+.panel-modulo__lista-ficheros {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+}
+
+.panel-modulo__lista-ficheros li {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  padding-bottom: var(--e-3);
+  border-bottom: 1px solid var(--pelo);
+}
+
+.panel-modulo__lista-ficheros li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.panel-modulo__lista-ficheros code {
+  flex-shrink: 0;
+  max-width: 55%;
+  font-family: var(--fuente-mono);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  color: var(--tinta);
+  transition: transform 0.2s var(--curva), color 0.2s ease;
+}
+
+.panel-modulo__guia {
+  flex: 1;
+  min-width: 1.5rem;
+  height: 0.75em;
+  margin: 0 var(--e-2);
+  background-image: radial-gradient(circle, var(--pelo-fuerte) 1px, transparent 1px);
+  background-size: 5px 5px;
+  background-position: 0 100%;
+  background-repeat: repeat-x;
+  transition: background-image 0.2s ease;
+}
+
+.panel-modulo__descripcion {
+  flex-shrink: 1;
+  text-align: right;
+  font-family: var(--fuente-cuerpo);
+  font-size: var(--t-base);
+  line-height: 1.5;
+  color: var(--grafito);
+}
+
+.panel-modulo__lista-ficheros li:hover code {
+  color: var(--rojo);
+  transform: translateX(2px);
+}
+
+.panel-modulo__lista-ficheros li:hover .panel-modulo__guia {
+  background-image: radial-gradient(circle, var(--rojo) 1px, transparent 1px);
+}
+
+/* ------------------------------------------------------------- responsive */
+
+@media (max-width: 56rem) {
+  .panel-modulo__lista-ficheros li {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--e-1);
+  }
+
+  .panel-modulo__lista-ficheros code {
+    max-width: none;
+  }
+
+  .panel-modulo__guia {
+    display: none;
+  }
+
+  .panel-modulo__descripcion {
+    text-align: left;
+  }
+}

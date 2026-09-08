@@ -1,0 +1,19 @@
+{
+  "curso.titulo": "AI applied to programming",
+  "curso.subtitulo": "Code agents in the terminal with opencode",
+  "app.enConstruccion": "No interface yet: the agent team will build it.",
+  "menu.titulo": "Modules",
+  "panel.puntos": "Key Points",
+  "panel.comandos": "Commands",
+  "panel.ficheros": "Files",
+  "panel.codigo": "Code",
+  "codigo.copiar": "Copy",
+  "codigo.copiado": "Copied",
+  "codigo.copiarAria": "Copy the code from {ruta}",
+  "codigo.errorCopiar": "Could not copy. Select the text and copy it by hand.",
+  "panel.seleccionar": "Select a module",
+  "selector.idioma": "Language",
+  "boton.descargarPdf": "Download PDF",
+  "boton.generando": "Generating...",
+  "boton.errorGenerandoPdf": "Error generating PDF. Check console for details."
+}

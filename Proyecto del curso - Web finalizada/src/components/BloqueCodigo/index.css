@@ -1,0 +1,241 @@
+/*
+  Un bloque de tinta incrustado en el papel. Radio 0, como todo el proyecto:
+  no es una tarjeta flotante, es una lámina pegada en el manual.
+
+  El resaltado se escribe aquí a mano con los tokens del proyecto. No se importa
+  ningún tema de Prism: traería su propia paleta y chocaría con el manual.
+*/
+
+.bloque-codigo {
+  margin: 0 0 var(--e-4);
+  border: 1px solid var(--editor-fondo);
+  background: var(--editor-fondo);
+  color: var(--editor-texto);
+}
+
+.bloque-codigo:last-child {
+  margin-bottom: 0;
+}
+
+/* ------------------------------------------------------------------- barra */
+
+.bloque-codigo__barra {
+  display: flex;
+  align-items: baseline;
+  gap: var(--e-3);
+  padding: var(--e-2) var(--e-3);
+  background: var(--editor-barra);
+  border-bottom: 1px solid var(--editor-pelo);
+}
+
+.bloque-codigo__ruta {
+  flex-shrink: 0;
+  font-family: var(--fuente-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--editor-texto);
+}
+
+.bloque-codigo__nota {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--fuente-cuerpo);
+  font-size: var(--t-sm);
+  font-style: italic;
+  color: var(--editor-tenue);
+}
+
+.bloque-codigo__copiar {
+  flex-shrink: 0;
+  padding: var(--e-1) var(--e-3);
+  border: 1px solid var(--editor-pelo);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--fuente-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--editor-senal);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.bloque-codigo__copiar:hover {
+  border-color: var(--editor-senal);
+  background: var(--editor-senal);
+  color: var(--editor-fondo);
+}
+
+/* Confirmado: pierde el rojo de llamada, ya no hay nada que pulsar. */
+.bloque-codigo__copiar[data-estado='copiado'] {
+  border-color: var(--editor-pelo);
+  background: transparent;
+  color: var(--editor-texto);
+}
+
+.bloque-codigo__copiar[data-estado='error'] {
+  border-color: var(--editor-senal);
+  color: var(--editor-senal);
+}
+
+.bloque-codigo__copiar:focus-visible {
+  outline: 2px solid var(--editor-senal);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ cuerpo */
+
+.bloque-codigo__cuerpo {
+  display: flex;
+  align-items: stretch;
+  /*
+    Solo desplaza en horizontal: el alto lo resuelve el scroll de la página, sin
+    scroll anidado. overflow-y tiene que ser hidden y no visible, porque el CSS
+    convierte visible en auto cuando el otro eje es desplazable, y volvería a
+    aparecer la barra vertical. No recorta nada: sin tope de alto el cuerpo mide
+    lo que mide su contenido.
+  */
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.bloque-codigo__canalon,
+.bloque-codigo__pre {
+  margin: 0;
+  padding: var(--e-3) 0;
+  font-family: var(--fuente-mono);
+  /* Un punto por encima del cromo de la barra: esto se proyecta en clase. */
+  font-size: var(--t-base);
+  line-height: 1.7;
+  /* Sin ajuste de línea: si se ajustara, la numeración dejaría de cuadrar. */
+  white-space: pre;
+  tab-size: 2;
+}
+
+/*
+  El canalón se queda pegado al borde izquierdo mientras el código se desplaza
+  en horizontal. Va fuera del `<pre>` del código para que no entre al copiar.
+*/
+.bloque-codigo__canalon {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  flex-shrink: 0;
+  padding-right: var(--e-3);
+  padding-left: var(--e-3);
+  border-right: 1px solid var(--editor-pelo);
+  background: var(--editor-fondo);
+  text-align: right;
+  color: var(--editor-tenue);
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+.bloque-codigo__pre {
+  flex: 1;
+  /*
+    Sin esto el ancho intrínseco del código empujaría al bloque, al panel y a la
+    retícula entera: un elemento flex no baja de su contenido salvo que se le diga.
+  */
+  min-width: 0;
+  padding-right: var(--e-4);
+  padding-left: var(--e-4);
+  overflow: visible;
+}
+
+.bloque-codigo__pre code {
+  font: inherit;
+  color: inherit;
+}
+
+/* -------------------------------------------------------- tokens de Prism */
+
+.bloque-codigo .token.punctuation,
+.bloque-codigo .token.operator {
+  color: var(--editor-tenue);
+}
+
+.bloque-codigo .token.property,
+.bloque-codigo .token.tag,
+.bloque-codigo .token.selector {
+  color: var(--editor-texto);
+  font-weight: 500;
+}
+
+.bloque-codigo .token.string,
+.bloque-codigo .token.attr-value {
+  color: var(--editor-cadena);
+}
+
+.bloque-codigo .token.boolean,
+.bloque-codigo .token.number,
+.bloque-codigo .token.null,
+.bloque-codigo .token.keyword,
+.bloque-codigo .token.important {
+  color: var(--editor-senal);
+}
+
+.bloque-codigo .token.comment {
+  color: var(--editor-tenue);
+  font-style: italic;
+}
+
+/* markdown */
+.bloque-codigo .token.title {
+  color: var(--editor-senal);
+  font-weight: 700;
+}
+
+.bloque-codigo .token.bold {
+  font-weight: 700;
+}
+
+.bloque-codigo .token.italic {
+  font-style: italic;
+}
+
+.bloque-codigo .token.code,
+.bloque-codigo .token.code-snippet {
+  color: var(--editor-cadena);
+}
+
+.bloque-codigo .token.url,
+.bloque-codigo .token.list,
+.bloque-codigo .token.hr {
+  color: var(--editor-tenue);
+}
+
+.bloque-codigo .token.front-matter-block {
+  color: var(--editor-tenue);
+}
+
+/* bash */
+.bloque-codigo .token.function {
+  color: var(--editor-texto);
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------- responsive */
+
+@media (max-width: 56rem) {
+  /* La nota no cabe junto a la ruta y el botón: baja a su propia línea. */
+  .bloque-codigo__barra {
+    flex-wrap: wrap;
+  }
+
+  .bloque-codigo__nota {
+    order: 3;
+    flex-basis: 100%;
+    white-space: normal;
+  }
+
+  .bloque-codigo__ruta {
+    flex: 1;
+  }
+}

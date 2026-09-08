@@ -1,0 +1,55 @@
+.boton-descargar-pdf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-2);
+  padding: var(--e-2) var(--e-4);
+  border: 1px solid var(--tinta);
+  border-radius: 0;
+  background: var(--tinta);
+  color: var(--papel-alto);
+  font-family: var(--fuente-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.boton-descargar-pdf:hover:not(:disabled) {
+  background: var(--rojo);
+  border-color: var(--rojo);
+}
+
+.boton-descargar-pdf:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.boton-descargar-pdf:focus-visible {
+  outline: 2px solid var(--rojo);
+  outline-offset: 3px;
+}
+
+.boton-descargar-pdf:disabled,
+.boton-descargar-pdf--cargando {
+  background: transparent;
+  color: var(--lapiz);
+  border-color: var(--pelo-fuerte);
+  cursor: not-allowed;
+}
+
+.boton-descargar-pdf__spinner {
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 1px solid var(--pelo-fuerte);
+  border-top-color: var(--rojo);
+  border-radius: 50%;
+  animation: boton-descargar-pdf__spin 0.8s linear infinite;
+}
+
+@keyframes boton-descargar-pdf__spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

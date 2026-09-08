@@ -1,0 +1,140 @@
+.app {
+  max-width: 84rem;
+  margin: 0 auto;
+  padding: var(--e-12) var(--e-8) var(--e-16);
+}
+
+/* ---------------------------------------------------------------- masthead */
+
+.app__cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--e-8);
+  flex-wrap: wrap;
+  padding-bottom: var(--e-4);
+}
+
+.app__cabecera--izquierda {
+  flex: 1;
+  min-width: 0;
+}
+
+.app__cabecera--derecha {
+  display: flex;
+  align-items: center;
+  gap: var(--e-6);
+  flex-shrink: 0;
+}
+
+.app h1 {
+  margin: 0;
+  font-size: var(--t-2xl);
+  font-weight: 800;
+  font-stretch: 95%;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+/* Colofón: como el pie de portada de un manual */
+.app__meta {
+  margin: var(--e-4) 0 0;
+  font-family: var(--fuente-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lapiz);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* La regla gruesa que separa la portada del cuerpo */
+.app__regla {
+  height: 2px;
+  margin-bottom: var(--e-12);
+  background: var(--tinta);
+  transform-origin: left;
+  animation: app-regla 0.7s var(--curva) both;
+}
+
+@keyframes app-regla {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* ------------------------------------------------------------------ cuerpo */
+
+.app__layout {
+  display: grid;
+  grid-template-columns: 13rem 1fr;
+  gap: var(--e-16);
+  align-items: start;
+}
+
+/* ------------------------------------------------------------- responsive */
+
+@media (max-width: 64rem) {
+  .app {
+    padding: var(--e-8) var(--e-6) var(--e-12);
+  }
+
+  .app__layout {
+    grid-template-columns: 1fr;
+    gap: var(--e-8);
+  }
+}
+
+@media (max-width: 48rem) {
+  .app__cabecera {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--e-6);
+  }
+
+  .app__cabecera--derecha {
+    justify-content: space-between;
+    padding-bottom: 0;
+  }
+}
+
+/* ---------------------------------------------------------------- impresión
+
+  La estética es la de un manual impreso, así que la página se imprime como
+  tal: sin cromo, sin grano, tinta negra sobre blanco.
+*/
+
+@media print {
+  /*
+    `html body` y no `body`: una media query no añade especificidad, así que
+    con un solo selector esta regla perdería contra el fondo de `index.css`.
+  */
+  html body {
+    background: #fff;
+    color: #000;
+  }
+
+  body::before,
+  body::after,
+  .app__cabecera--derecha,
+  .menu-modulos {
+    display: none !important;
+  }
+
+  .app {
+    max-width: none;
+    padding: 0;
+  }
+
+  .app__layout {
+    display: block;
+  }
+
+  .app__regla {
+    animation: none;
+  }
+
+  .panel-modulo {
+    break-inside: avoid;
+  }
+}

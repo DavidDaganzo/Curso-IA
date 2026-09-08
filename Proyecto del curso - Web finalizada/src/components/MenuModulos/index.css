@@ -1,0 +1,244 @@
+.menu-modulos {
+  --alto-item: 2.375rem;
+
+  position: sticky;
+  top: var(--e-8);
+  padding-right: var(--e-6);
+  border-right: 1px solid var(--pelo);
+}
+
+.menu-modulos__rotulo {
+  margin: 0 0 var(--e-4);
+  font-family: var(--fuente-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--lapiz);
+}
+
+/* ------------------------------------------------------------------- lista */
+
+.menu-modulos__lista {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/*
+  Indicador activo: un único elemento que se desliza, en lugar de un borde
+  por ítem. Es lo que hace que el menú se sienta continuo y no conmutado.
+*/
+.menu-modulos__lista::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: var(--alto-item);
+  background: var(--rojo);
+  transform: translateY(calc(var(--activo) * var(--alto-item)));
+  transition: transform 0.42s var(--curva);
+}
+
+.menu-modulos__item {
+  margin: 0;
+  animation: menu-entrada 0.5s var(--curva) both;
+  animation-delay: calc(0.25s + var(--indice) * 0.04s);
+}
+
+@keyframes menu-entrada {
+  from {
+    opacity: 0;
+    transform: translateX(-0.5rem);
+  }
+}
+
+.menu-modulos__boton {
+  width: 100%;
+  height: var(--alto-item);
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: 0 0 0 var(--e-4);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--grafito);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.menu-modulos__id {
+  flex-shrink: 0;
+  font-family: var(--fuente-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--lapiz);
+  transition: color 0.2s ease;
+}
+
+.menu-modulos__etiqueta {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--fuente-display);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: transform 0.2s var(--curva);
+}
+
+/* --- estados --- */
+
+.menu-modulos__boton:hover {
+  color: var(--tinta);
+}
+
+.menu-modulos__boton:hover .menu-modulos__etiqueta {
+  transform: translateX(2px);
+}
+
+.menu-modulos__boton:hover .menu-modulos__id {
+  color: var(--grafito);
+}
+
+.menu-modulos__boton:focus-visible {
+  outline: 2px solid var(--rojo);
+  outline-offset: -2px;
+}
+
+.menu-modulos__boton--activo,
+.menu-modulos__boton--activo:hover {
+  color: var(--tinta);
+}
+
+.menu-modulos__boton--activo .menu-modulos__id,
+.menu-modulos__boton--activo:hover .menu-modulos__id {
+  color: var(--rojo);
+}
+
+.menu-modulos__boton--activo .menu-modulos__etiqueta {
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------- pie */
+
+.menu-modulos__pie {
+  margin-top: var(--e-8);
+  padding-top: var(--e-4);
+  border-top: 1px solid var(--pelo);
+}
+
+.menu-modulos__progreso {
+  display: flex;
+  align-items: baseline;
+  gap: var(--e-1);
+  margin: 0 0 var(--e-3);
+  font-family: var(--fuente-mono);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.menu-modulos__progreso-actual {
+  font-size: var(--t-md);
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.menu-modulos__progreso-total {
+  font-size: var(--t-sm);
+  color: var(--lapiz);
+}
+
+.menu-modulos__barra {
+  height: 2px;
+  background: var(--pelo);
+  overflow: hidden;
+}
+
+.menu-modulos__barra::after {
+  content: '';
+  display: block;
+  height: 100%;
+  background: var(--rojo);
+  transform: scaleX(var(--avance));
+  transform-origin: left;
+  transition: transform 0.42s var(--curva);
+}
+
+.menu-modulos__atajo {
+  margin: var(--e-3) 0 0;
+  font-family: var(--fuente-mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.08em;
+  color: var(--lapiz);
+}
+
+/* ------------------------------------------------------------- responsive */
+
+@media (max-width: 64rem) {
+  .menu-modulos {
+    position: static;
+    padding-right: 0;
+    padding-bottom: var(--e-6);
+    border-right: none;
+    border-bottom: 1px solid var(--pelo);
+  }
+
+  /*
+    Apilado, una sola columna desperdiciaría todo el ancho. El índice fluye en
+    columnas y el marcador deslizante deja paso a un filete por ítem, porque
+    ya no hay una vertical por la que deslizarse.
+  */
+  .menu-modulos__lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    column-gap: var(--e-4);
+  }
+
+  .menu-modulos__lista::before {
+    display: none;
+  }
+
+  .menu-modulos__boton {
+    border-left: 2px solid transparent;
+    padding-left: calc(var(--e-4) - 2px);
+  }
+
+  .menu-modulos__boton--activo {
+    border-left-color: var(--rojo);
+  }
+
+  .menu-modulos__pie {
+    display: flex;
+    align-items: center;
+    gap: var(--e-4);
+    margin-top: var(--e-6);
+  }
+
+  .menu-modulos__progreso {
+    margin-bottom: 0;
+  }
+
+  .menu-modulos__barra {
+    flex: 1;
+  }
+
+  .menu-modulos__atajo {
+    margin: 0;
+  }
+}
+
+/* Sin teclado que valga la pena anunciar */
+@media (max-width: 48rem) {
+  .menu-modulos__atajo {
+    display: none;
+  }
+}

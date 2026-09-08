@@ -1,0 +1,189 @@
+/*
+  Tokens y estilos globales.
+  Dirección: manual técnico impreso — papel hueso, tinta, un rojo de señal,
+  reglas de un pelo en lugar de tarjetas, radio 0 en todo el proyecto.
+*/
+
+:root {
+  /* --- superficie --- */
+  --papel: #f3f0e7;
+  --papel-alto: #faf8f2;
+  --papel-hondo: #e9e5d9;
+
+  /* --- tinta --- */
+  --tinta: #16150f;
+  --grafito: #57534a; /* 6.5:1 sobre papel */
+  --lapiz: #6e6959; /* 4.9:1 — el gris más claro que sigue siendo texto legible */
+
+  /* --- señal: se usa poco, y por eso funciona --- */
+  --rojo: #c62a15; /* 4.8:1 sobre papel, ya como texto pequeño */
+  --rojo-suave: #c62a151a;
+
+  /* --- reglas --- */
+  --pelo: #16150f1f;
+  --pelo-fuerte: #16150f3d;
+
+  /* --- editor: tinta oscura incrustada en el papel --- */
+  --editor-fondo: #16150f;
+  --editor-barra: #211f16;
+  --editor-texto: #e9e5d9;
+  --editor-tenue: #8a8474; /* números de línea y puntuación */
+  --editor-pelo: #ffffff1f;
+  --editor-cadena: #d8a657; /* ámbar */
+  --editor-senal: #e8583f; /* el rojo, aclarado para leer sobre tinta */
+
+  /* --- tipografías --- */
+  --fuente-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --fuente-cuerpo: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --fuente-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+
+  /* --- escala tipográfica --- */
+  --t-xs: 0.6875rem;
+  --t-sm: 0.8125rem;
+  --t-base: 0.9375rem;
+  --t-md: 1.0625rem;
+  --t-lg: 1.375rem;
+  --t-xl: clamp(1.75rem, 3.5vw, 2.375rem);
+  --t-2xl: clamp(2rem, 5vw, 3.25rem);
+
+  /* --- espaciado sobre retícula de 8px --- */
+  --e-1: 0.25rem;
+  --e-2: 0.5rem;
+  --e-3: 0.75rem;
+  --e-4: 1rem;
+  --e-6: 1.5rem;
+  --e-8: 2rem;
+  --e-12: 3rem;
+  --e-16: 4rem;
+
+  /* --- movimiento --- */
+  --curva: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  color-scheme: light;
+  font-family: var(--fuente-display);
+  font-size: 100%;
+  line-height: 1.6;
+
+  /* alineación óptica de márgenes: comillas y viñetas cuelgan fuera */
+  hanging-punctuation: first last;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--tinta);
+  background-color: var(--papel);
+}
+
+/*
+  El papel nunca es un relleno plano. Va en una capa fija propia en lugar de
+  `background-attachment: fixed`, que deja costura al hacer scroll y va mal en
+  iOS Safari.
+*/
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 90% at 50% 0%,
+    #faf8f2 0%,
+    #f3f0e7 45%,
+    #efebe0 100%
+  );
+}
+
+/*
+  Grano de papel. Es lo que convierte el hueso en papel de verdad:
+  sin esta capa el fondo solo se lee como "beige".
+*/
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+/* --- elementos base --- */
+
+h1,
+h2,
+h3 {
+  font-family: var(--fuente-display);
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+p,
+li {
+  text-wrap: pretty;
+}
+
+/* --- cromo --- */
+
+::selection {
+  background: var(--rojo);
+  color: var(--papel-alto);
+}
+
+:focus-visible {
+  outline: 2px solid var(--rojo);
+  outline-offset: 3px;
+  border-radius: 0;
+}
+
+/* Barras de scroll de un pelo, para que no rompan la retícula */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--pelo-fuerte) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--pelo-fuerte);
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* --- accesibilidad --- */
+
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

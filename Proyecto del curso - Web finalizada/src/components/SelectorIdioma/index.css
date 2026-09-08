@@ -1,0 +1,57 @@
+.selector-idioma {
+  display: flex;
+  align-items: baseline;
+  gap: var(--e-2);
+}
+
+.selector-idioma__label {
+  font-family: var(--fuente-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--lapiz);
+  white-space: nowrap;
+}
+
+.selector-idioma__select {
+  padding: var(--e-1) 1.5rem var(--e-1) 0;
+  border: none;
+  border-bottom: 1px solid var(--pelo-fuerte);
+  border-radius: 0;
+  background-color: transparent;
+  color: var(--tinta);
+  font-family: var(--fuente-mono);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  cursor: pointer;
+  appearance: none;
+
+  /* el trazo del chevron sigue a --grafito */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2357534a' stroke-width='2' stroke-linecap='square'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: 0.875rem;
+  transition: border-color 0.2s ease;
+}
+
+.selector-idioma__select:hover {
+  border-bottom-color: var(--tinta);
+}
+
+.selector-idioma__select:focus-visible {
+  outline: 2px solid var(--rojo);
+  outline-offset: 3px;
+  border-bottom-color: var(--tinta);
+}
+
+.selector-idioma__select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* El desplegable nativo se pinta con el color del sistema: forzamos papel */
+.selector-idioma__select option {
+  background: var(--papel-alto);
+  color: var(--tinta);
+}
